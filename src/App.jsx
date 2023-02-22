@@ -1,34 +1,89 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
+import { useState } from "react";
+import "./App.css";
+import { Row, Divider, Button } from "antd";
+import foods from "./foods.json";
+import Foodbox from "./component/Foodbox";
+import AddFoodForm from "./component/AddFoodForm";
+import Search from "./component/Search";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [foodState, setFoodState] = useState(foods);
+
+  const [name, setName] = useState("");
+  const [image, setImage] = useState("");
+  const [calories, setCalories] = useState(0);
+  const [servings, setServings] = useState(0);
+  const [search, setSearch] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  console.log (search)
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+   
+    setFoodState((prevFoodState) => {
+      return [
+        ...prevFoodState,
+        { name, image, calories, servings, },
+      ];
+    });
+    setName("");
+    setImage("");
+    setCalories(0);
+    setServings(0);
+  };
+
+   
+  function deleteFood(name) {
+    const filterArray= foodState.filter(food => food.name !== name)
+    setFoodState([...filterArray])
+    
+  }
+  const toggleForm = () => {
+    setShowForm(!showForm);
+  }
+
+
+
 
   return (
     <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </div>
-  )
-}
+      {/* Display Add Food component here */}
+      {showForm ? 
+      <AddFoodForm
+        name={name}
+        setName={setName}
+        image={image}
+        setImage={setImage}
+        calories={calories}
+        setCalories={setCalories}
+        servings={servings}
+        setServings={setServings}
+        foodState={foodState}
+        setFoodState={setFoodState}
+        handleSubmit={handleSubmit}
+      /> : null
+      }
 
-export default App
+      <Button onClick={() => toggleForm()}> {showForm ? 'hide form ':'add new food'} </Button>
+
+      {/* Display Search component here */}
+      <Search 
+        search={search}
+        setSearch={setSearch}
+      />
+
+      <Divider>Food List</Divider>
+
+      <Row style={{ width: "100%", justifyContent: "center" }}>
+      {foodState.length === 0 ? 'no more content': '' }
+        {foodState.map((food) => (
+          food.name.toLowerCase().includes(search.toLowerCase()) ? 
+           <Foodbox key ={food.name} food={food} deleteFood={deleteFood}/> : ""
+        ))}
+     
+        {/* Render the list of Food Box components here */}
+      </Row>
+    </div>
+  );
+}
+export default App;
